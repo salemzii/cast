@@ -28,7 +28,7 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		broadcast.ServeWs(hub, w, r)
 	})
-
+	//fmt.Sprintf(":%s", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
@@ -85,4 +85,6 @@ func Publish(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	broadcast.MessageQueue <- msg.Data
+
+	fmt.Println(len(broadcast.MessageQueue))
 }
