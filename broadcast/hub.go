@@ -1,5 +1,12 @@
 package broadcast
 
+import (
+	"fmt"
+	"log"
+
+	"github.com/salemzii/cast.git/db"
+)
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
@@ -33,6 +40,7 @@ func NewHub() *Hub {
 }
 
 func (h *Hub) Run() {
+
 	for {
 		select {
 		case client := <-h.register:
@@ -59,18 +67,39 @@ func (h *Hub) Run() {
 			}
 
 		case message := <-h.broadcastDrivers:
-			for client := range h.clients {
-				if client.clientId == "clientId=1002" {
+			cls, err := db.RideRespository.All()
+			if err != nil {
+				log.Println(err)
+			}
 
-					select {
-					case client.send <- message:
-					default:
-						close(client.send)
-						delete(h.clients, client)
+			fmt.Println(cls)
+			for client := range h.clients {
+				for _, cl := range cls {
+					if client.clientId == cl.Clientid {
+						fmt.Printf("Updating with driverrId %d, clientId = %d", 7688, cl.Id)
+						select {
+						case client.send <- message:
+						default:
+							close(client.send)
+							delete(h.clients, client)
+						}
 					}
 				}
 
 			}
+
+		case msg := <-MessageQueue:
+
+			for client := range h.clients {
+				select {
+
+				case client.send <- []byte(msg):
+				default:
+					close(client.send)
+					delete(h.clients, client)
+				}
+			}
+
 		}
 	}
 }

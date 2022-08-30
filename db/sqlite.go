@@ -31,8 +31,8 @@ func (repo *SQLiteRepository) Migrate() error {
 		CREATE TABLE IF NOT EXISTS ride(
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			rideid TEXT NOT NULL UNIQUE,
-			driverid TEXT UNIQUE,
-			clientid TEXT NOT NULL UNIQUE,
+			driverid TEXT,
+			clientid TEXT NOT NULL,
 			status TEXT
 		);
 	`
@@ -84,8 +84,8 @@ func (repo *SQLiteRepository) All() ([]Ride, error) {
 	return all, nil
 }
 
-func (repo *SQLiteRepository) GetByName(name string) (*Ride, error) {
-	row := repo.db.QueryRow("SELECT * FROM contact WHERE name = ?", name)
+func (repo *SQLiteRepository) GetByName(clientId string) (*Ride, error) {
+	row := repo.db.QueryRow("SELECT * FROM ride WHERE client = ?", clientId)
 
 	var ride Ride
 	if err := row.Scan(&ride.RideId, &ride.Clientid, &ride.DriverId,
@@ -105,7 +105,7 @@ func (repo *SQLiteRepository) Update(id int64, newride Ride) (*Ride, error) {
 		return nil, errors.New("invalid updated ID")
 	}
 
-	res, err := repo.db.Exec("UPDATE contact SET driverid = ?, status = ? WHERE id = ? ",
+	res, err := repo.db.Exec("UPDATE ride SET driverid = ?, status = ? WHERE id = ? ",
 		newride.DriverId, newride.Status)
 
 	if err != nil {

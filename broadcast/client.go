@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/salemzii/cast.git/db"
 )
 
 const (
@@ -27,6 +26,8 @@ const (
 var (
 	newline = []byte{'\n'}
 	space   = []byte{' '}
+
+	MessageQueue = make(chan string, 300)
 )
 
 var upgrader = websocket.Upgrader{
@@ -49,34 +50,6 @@ type Client struct {
 	send chan []byte
 }
 
-func (c *Client) ReadDb() {
-	ticker := time.NewTicker(1 * time.Second)
-
-	defer func() {
-		ticker.Stop()
-		c.conn.Close()
-	}()
-
-	var rides []db.Ride
-	var err error
-	for {
-		select {
-		case <-ticker.C:
-			rides, err = db.RideRespository.All()
-			if err != nil {
-				log.Println(err)
-			}
-			fmt.Println("here", len(rides))
-			for _, ride := range rides {
-				fmt.Println(ride)
-				rideMessage := []byte(fmt.Sprintf("%s:%s", ride.Clientid, ride.RideId))
-				c.hub.ride <- rideMessage
-
-			}
-		}
-	}
-}
-
 // serveWs handles websocket requests from the peer.
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -88,7 +61,9 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.RawQuery)
 	fmt.Println("--------------------------")
 
-	client := &Client{hub: hub, clientId: r.URL.RawQuery, driverId: r.URL.RawQuery, conn: conn, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, clientId: r.URL.RawQuery, driverId: r.URL.RawQuery,
+		conn: conn, send: make(chan []byte, 256)}
+
 	if strings.HasPrefix(client.clientId, "driverId") {
 		client.clientId = ""
 		client.Type = "driver"
@@ -98,8 +73,6 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	}
 
 	client.hub.register <- client
-
-	fmt.Println(client.Type)
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.

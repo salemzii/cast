@@ -1,11 +1,19 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+// Accepts any type that implements method InsertOne()
+type CollectionApi interface {
+	InsertOne(ctx context.Context, document interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
+}
 
 type Ride struct {
 	Id       int

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Chat Example</title>
+<title>Driver Page</title>
 <script type="text/javascript">
 window.onload = function () {
     var conn;
@@ -33,7 +33,7 @@ window.onload = function () {
     };
 
     if (window["WebSocket"]) {
-        conn = new WebSocket("ws://" + document.location.host + "/ws"+"?driverId=1003");
+        conn = new WebSocket("ws://" + document.location.host + "/ws"+"?driverId=1002");
         conn.onclose = function (evt) {
             var item = document.createElement("div");
             item.innerHTML = "<b>Connection closed.</b>";
@@ -96,8 +96,6 @@ body {
 <body>
 <div id="log"></div>
 <form id="form">
-    <input type="submit" value="Send" />
-    <input type="text" id="msg" size="64" autofocus />
 </form>
 </body>
 </html>
