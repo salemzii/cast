@@ -22,7 +22,6 @@ func main() {
 	hub := broadcast.NewHub()
 	go hub.Run()
 	http.HandleFunc("/", serveHome)
-	http.HandleFunc("/home", serveHome2)
 
 	http.HandleFunc("/publish", Publish)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
@@ -47,19 +46,6 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.ServeFile(w, r, "home.html")
-}
-
-func serveHome2(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL)
-	if r.URL.Path != "/home" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	http.ServeFile(w, r, "home3.html")
 }
 
 func Publish(w http.ResponseWriter, r *http.Request) {

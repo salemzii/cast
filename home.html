@@ -29,7 +29,7 @@ window.onload = function () {
 
     function ConnWebsocket(id){
         if (window["WebSocket"]) {
-        conn = new WebSocket("ws://" + document.location.host + `/ws?clientid=${id}`);
+        conn = new WebSocket("wss://" + document.location.host + `/ws?clientid=${id}`);
         console.log(conn.url, "Socket connection made successfully!")
         conn.onclose = function (evt) {
             var item = document.createElement("div");
