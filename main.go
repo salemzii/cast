@@ -3,20 +3,22 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/salemzii/cast.git/app"
 	"github.com/salemzii/cast.git/broadcast"
 )
 
-var addr = flag.String("addr", ":8080", "http service address")
+//var addr = flag.String("addr", ":8080", "http service address")
 
 func main() {
 
 	flag.Parse()
-
+	port := os.Getenv("PORT")
 	hub := broadcast.NewHub()
 	go hub.Run()
 	http.HandleFunc("/", serveHome)
@@ -27,7 +29,7 @@ func main() {
 		broadcast.ServeWs(hub, w, r)
 	})
 
-	err := http.ListenAndServe(*addr, nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

@@ -103,3 +103,5 @@ func (h *Hub) Run() {
 		}
 	}
 }
+
+//https://stackoverflow.com/questions/2818852/is-there-a-queue-implementation
