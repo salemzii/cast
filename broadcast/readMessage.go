@@ -38,8 +38,6 @@ func (c *Client) readPump() {
 		switch c.Type {
 		case "client":
 			c.hub.broadcast <- message
-		case "driver":
-			c.hub.broadcastDrivers <- message
 		}
 
 	}

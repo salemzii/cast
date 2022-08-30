@@ -59,7 +59,7 @@ func serveHome2(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	http.ServeFile(w, r, "home2.html")
+	http.ServeFile(w, r, "home3.html")
 }
 
 func Publish(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +84,7 @@ func Publish(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	broadcast.MessageQueue <- msg.Data
+	broadcast.MessageQueue <- msg
 
 	fmt.Println(len(broadcast.MessageQueue))
 }

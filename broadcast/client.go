@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/salemzii/cast.git/app"
 )
 
 const (
@@ -27,7 +28,7 @@ var (
 	newline = []byte{'\n'}
 	space   = []byte{' '}
 
-	MessageQueue = make(chan string, 300)
+	MessageQueue = make(chan app.Message, 300)
 )
 
 var upgrader = websocket.Upgrader{
@@ -48,6 +49,8 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	sendMsg chan app.Message
 }
 
 // serveWs handles websocket requests from the peer.

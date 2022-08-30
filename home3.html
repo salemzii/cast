@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Client Page</title>
+<title>Chat Example</title>
 <script type="text/javascript">
 window.onload = function () {
     var conn;
@@ -16,25 +16,21 @@ window.onload = function () {
         }
     }
 
-    function getRandomInt(max) {
-        return Math.floor(Math.random() * max);
-    }
-
     document.getElementById("form").onsubmit = function () {
-        if (!conn) {
-            return false;
-        }
         if (!msg.value) {
             return false;
         }
-        conn.send(msg.value);
+        console.log(msg.value)
+        ConnWebsocket(msg.value)
+        console.log("shouldn't get this!!!")
         msg.value = "";
         return false;
     };
 
-    if (window["WebSocket"]) {
-        conn = new WebSocket("wss://" + document.location.host + "/ws"+"?clientId=1002");
-        console.log("connected to socket")
+    function ConnWebsocket(id){
+        if (window["WebSocket"]) {
+        conn = new WebSocket("ws://" + document.location.host + `/ws?clientid=${id}`);
+        console.log(conn.url, "Socket connection made successfully!")
         conn.onclose = function (evt) {
             var item = document.createElement("div");
             item.innerHTML = "<b>Connection closed.</b>";
@@ -45,7 +41,6 @@ window.onload = function () {
             for (var i = 0; i < messages.length; i++) {
                 var item = document.createElement("div");
                 item.innerText = messages[i];
-                console.log(messages[i])
                 appendLog(item);
             }
         };
@@ -53,6 +48,7 @@ window.onload = function () {
         var item = document.createElement("div");
         item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
         appendLog(item);
+    }
     }
 };
 </script>
@@ -97,6 +93,8 @@ body {
 <body>
 <div id="log"></div>
 <form id="form">
+    <input type="submit" value="Send" />
+    <input type="text" id="msg" size="64" autofocus />
 </form>
 </body>
 </html>
