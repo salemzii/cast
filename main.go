@@ -13,8 +13,6 @@ import (
 	"github.com/salemzii/cast.git/broadcast"
 )
 
-//var addr = flag.String("addr", ":8080", "http service address")
-
 func main() {
 
 	flag.Parse()
@@ -24,10 +22,12 @@ func main() {
 	http.HandleFunc("/", serveHome)
 
 	http.HandleFunc("/publish", Publish)
+	http.HandleFunc("/taskify/notify", PublishTaskifyNotification)
+	http.HandleFunc("/taskify/chat", PublishTaskifyChat)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		broadcast.ServeWs(hub, w, r)
 	})
-	//fmt.Sprintf(":%s", port)
+
 	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
@@ -71,6 +71,52 @@ func Publish(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	broadcast.MessageQueue <- msg
+}
 
-	fmt.Println(len(broadcast.MessageQueue))
+func PublishTaskifyNotification(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/taskify/notify" {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var msg app.Message
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.Unmarshal(data, &msg)
+
+	if err != nil {
+		log.Println(err)
+	}
+	broadcast.MessageQueue <- msg
+}
+
+func PublishTaskifyChat(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/taskify/chat" {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var msg app.Message
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.Unmarshal(data, &msg)
+
+	if err != nil {
+		log.Println(err)
+	}
+	broadcast.MessageQueue <- msg
 }
